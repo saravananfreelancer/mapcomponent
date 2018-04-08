@@ -14,7 +14,7 @@ import {
 
 const MapWithAMarker = withScriptjs(withGoogleMap(props =>
   <GoogleMap
-    options={{ scrollwheel: false,gestureHandling: 'none',streetViewControl:false,mapTypeControl: false,zoomControl: true}} 
+    options={{ scrollwheel: false,gestureHandling: 'none',streetViewControl:false,mapTypeControl: false,zoomControl: false}} 
     zoom={props.zoom.zoomlevel}
     center={{ lat: props.zoom.lat, lng: props.zoom.lng }}
   >   
