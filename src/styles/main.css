@@ -1,0 +1,39 @@
+#mapid { height: 500px; }
+.navbar {
+	border-radius: 0px
+}
+.mapcomponent {
+	height: 600px;
+    background: #00dcff;
+    padding: 0px;
+}
+.textarea
+{
+	    margin: 0px;
+    width: 100%;
+    height: 100px;
+    resize: none;
+}
+.infoBox {
+	width: auto !important;
+	    white-space: nowrap;
+}
+button[title= 'Toggle fullscreen view'] {
+	display: none
+}
+li.button-box {
+    padding: 10px;
+    background: #337ab7;
+    color: white;
+    margin-right: 10px;
+    box-shadow: 1px 1px 1px 1px #ccc;
+}
+.area-list {
+	margin-top: 10px;
+}
+li.button-box.active {
+	    background: green;
+}
+li.button-box:hover {
+	cursor: pointer;
+}
