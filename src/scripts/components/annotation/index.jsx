@@ -14,9 +14,10 @@ import {
 
 const MapWithAMarker = withScriptjs(withGoogleMap(props =>
   <GoogleMap
-    options={{ scrollwheel: false,gestureHandling: 'none',streetViewControl:false,mapTypeControl: false,zoomControl: false}} 
+    options={{ scrollwheel: false,gestureHandling: 'none',streetViewControl:false,mapTypeControl: false,zoomControl: false}}
+    center={{"lat":props.zoom.lat,lng:props.zoom.lng}}
     zoom={props.zoom.zoomlevel}
-    center={{ lat: props.zoom.lat, lng: props.zoom.lng }}
+    ref={(map)=>{props.mapbound(map)}}
   >   
     {
       props.info && props.info.length > 0 ?
@@ -81,15 +82,27 @@ var Annotation = React.createClass({
   },
   annotateMap:function(data){
     var annotation = this.state && this.state.info?this.state.info:[];   
+    var latlngbounds = new google.maps.LatLngBounds();    
     data.map((curData,i) => {
       if(curData.googleRes && curData.googleRes.geometry && curData.googleRes.geometry.location){        
         annotation.push({"lat":curData.googleRes.geometry.location.lat,"lng":curData.googleRes.geometry.location.lng,text:curData.label});
+        latlngbounds.extend(new google.maps.LatLng(curData.googleRes.geometry.location.lat, curData.googleRes.geometry.location.lng));
       }
     })
-    this.setState({"info":annotation});
+    var centerLoc = latlngbounds.getCenter();
+    this.latlngbounds = latlngbounds;
+    this.setState({"info":annotation,lat:centerLoc.lat(),"lng":centerLoc.lng()});
   },
-  zoomtoPos:function(obj,i){
+  zoomtoPos:function(obj,i){    
     this.setState({lat:obj.lat,"lng":obj.lng,active:i,zoomlevel:12})
+  },
+  componentDidUpdate:function(){
+    var _this = this;
+    this.map.fitBounds(this.latlngbounds)
+    debugger;
+  },
+  mapbound:function(key){
+    this.map = (key);
   },
  	render: function () {
 	  var zoom={zoomlevel:this.state && this.state.zoomlevel?this.state.zoomlevel:2,lat:this.state && this.state.lat?this.state.lat:13,lng:this.state && this.state.lng?this.state.lng:80}
@@ -99,7 +112,7 @@ var Annotation = React.createClass({
       <textarea ref="textarea" className="textarea">{JSON.stringify([{"label":"House 1 (1997-2012)","address":"3 Glen Park Rd, Eltham North Victoria, Australia"},{"label":"House 2 (2013-2016)","address":"16 View St, Mount Evelyn, Victoria, AUSTRALIA"},{"label":"House 3 (2017-present)","address":"10 River Gum Dr, Croydon North, Victoria, AUSTRALIA"}])}</textarea>
       <input type="button" className="btn btn-primary" onClick={this.loadData} value="Load Data" /> 
       <div>
-          <ul className="list-inline area-list">
+          <ul className="list-inline area-list hide">
               {
                 this.state && this.state.info ?this.state.info.map((list,i) => {
                     return(<li key={i} className={i==this.state.active?'button-box  active':'button-box '} onClick={this.zoomtoPos.bind(this,list,i)}>{list.text}</li>)
@@ -108,8 +121,10 @@ var Annotation = React.createClass({
           </ul>
       </div>     
       <MapWithAMarker
+          ref="main"
           info = {this.state && this.state.info ?this.state.info:[]}
           zoom={zoom}
+          mapbound ={this.mapbound}
           googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyCKl6d0xRZaz5vhJEjXXuWVURyYJ0fVC9g&v=3.exp&libraries=geometry,drawing,places"
           loadingElement={<div style={{ height: `100%` }} />}
           containerElement={<div style={{ height: `400px` }} />}
